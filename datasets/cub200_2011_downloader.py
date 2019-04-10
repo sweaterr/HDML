@@ -18,7 +18,7 @@ filenames = ["CUB_200_2011.tgz"]
 urls = [base_url + f for f in filenames]
 # print fuel_root_path
 fuel_data_path = os.path.join(fuel_root_path, "cub200_2011")
-os.mkdir(fuel_data_path)
+# os.mkdir(fuel_data_path)
 
 for filename in filenames:
     url = base_url + filename
