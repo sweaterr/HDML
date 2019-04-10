@@ -12,7 +12,7 @@ from six.moves.urllib import request
 from progressbar import ProgressBar, Percentage, Bar, ETA, FileTransferSpeed
 import fuel
 
-fuel_root_path = fuel.config.config["data_path"]["yaml"]
+fuel_root_path = './data'
 base_url = "http://imagenet.stanford.edu/internal/car196/"
 filenames = ["car_ims.tgz", "cars_annos.mat"]
 urls = [base_url + f for f in filenames]
