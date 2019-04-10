@@ -16,7 +16,7 @@ fuel_root_path = "./data"
 base_url = "http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/"
 filenames = ["CUB_200_2011.tgz"]
 urls = [base_url + f for f in filenames]
-print fuel_root_path
+# print fuel_root_path
 fuel_data_path = os.path.join(fuel_root_path, "cub200_2011")
 os.mkdir(fuel_data_path)
 
