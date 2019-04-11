@@ -18,7 +18,7 @@ class Cars196Dataset(H5PYDataset):
     def __init__(self, which_sets, **kwargs):
         try:
 #            path = find_in_data_path(self._filename)
-            path = "/home/zwz/Desktop/DML/lib/datasets/data/cars196/cars196.hdf5"
+            path = "datasets/data/cars196/cars196.hdf5"
         except IOError as e:
             msg = str(e) + (""".
          You need to download the dataset and convert it to hdf5 before.""")
