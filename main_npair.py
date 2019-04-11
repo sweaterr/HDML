@@ -4,7 +4,8 @@ import copy
 from tqdm import tqdm
 from tensorflow.contrib import layers
 from FLAGS import *
-
+import sys
+sys.path.append('./datasets')
 
 # Create the stream of datas from dataset
 streams = data_provider.get_streams(FLAGS.batch_size, FLAGS.dataSet, method, crop_size=FLAGS.default_image_size)
