@@ -12,7 +12,7 @@ def Pulling(Loss_type, embedding, Jm):
 
         anc_tile = tf.reshape(tf.tile(anc, [1, int(FLAGS.batch_size / 2)]), [-1, int(FLAGS.embedding_size)])
         pos_tile = tf.reshape(tf.tile(pos, [1, int(FLAGS.batch_size / 2)]), [-1, int(FLAGS.embedding_size)])
-        neg_tile = tf.tile(neg, [FLAGS.batch_size / 2, 1])
+        neg_tile = tf.tile(neg, [int(FLAGS.batch_size / 2), 1])
 
         neg2_tile = anc_tile + tf.multiply(
             (neg_tile - anc_tile),
