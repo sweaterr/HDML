@@ -180,6 +180,7 @@ def main(_):
           continue
         else:
           var_list_warm_start.append(v)
+      print('var_list_warm_start', var_list_warm_start)
       saver_to_warmstart = tf.train.Saver(var_list_warm_start)
     else:
       saver_to_warmstart = None
