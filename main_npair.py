@@ -35,30 +35,27 @@ def main(_):
     with tf.name_scope('learning_rate'):
         lr = tf.placeholder(tf.float32)
 
+    if FLAGS.resnet_backbone:
+      resnet_model = ResNet_Model.Model(
+        resnet_size=50,
+        bottleneck=True,
+        num_filters=64,
+        kernel_size=7,
+        conv_stride=2,
+        first_pool_size=3,
+        first_pool_stride=2,
+        block_sizes=[3, 4, 6, 3],
+        block_strides=[1, 2, 2, 2],
+      )
+      embedding = resnet_model(x_raw, True)
+      print('embedding', embedding)
+    else:
+      with tf.variable_scope('Classifier'):
+        google_net_model = GoogleNet_Model.GoogleNet_Model()
+        embedding = google_net_model.forward(x_raw)
+
     with tf.variable_scope('Classifier'):
-        if FLAGS.resnet_backbone:
-          # def __init__(self, resnet_size, bottleneck, num_filters,
-          #              kernel_size,
-          #              conv_stride, first_pool_size, first_pool_stride,
-          #              block_sizes, block_strides,
-          #              resnet_version=DEFAULT_VERSION, data_format=None,
-          #              dtype=DEFAULT_DTYPE):
-          resnet_model = ResNet_Model.Model(
-            resnet_size=50,
-            bottleneck=True,
-            num_filters=64,
-            kernel_size=7,
-            conv_stride=2,
-            first_pool_size=3,
-            first_pool_stride=2,
-            block_sizes=[3, 4, 6, 3],
-            block_strides=[1, 2, 2, 2],
-          )
-          embedding = resnet_model(x_raw, True)
-          print('embedding',embedding)
-        else:
-          google_net_model = GoogleNet_Model.GoogleNet_Model()
-          embedding = google_net_model.forward(x_raw)
+
         if FLAGS.Apply_HDML:
             embedding_y_origin = embedding
 
