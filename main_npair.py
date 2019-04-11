@@ -167,7 +167,7 @@ def main(_):
     saver = tf.train.Saver()
     if FLAGS.resnet_backbone:
       var_list_all = tf.trainable_variables()
-      print('var_list_all',var_list_all)
+      # print('var_list_all',var_list_all)
       var_list_warm_start = []
       for v in var_list_all:
         if 'dense' in v.name and not 'se_block' in v.name:
