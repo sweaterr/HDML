@@ -55,6 +55,7 @@ def main(_):
             block_strides=[1, 2, 2, 2],
           )
           embedding = resnet_model(x_raw, True)
+          print('embedding',embedding)
         else:
           google_net_model = GoogleNet_Model.GoogleNet_Model()
           embedding = google_net_model.forward(x_raw)
@@ -169,6 +170,7 @@ def main(_):
     saver = tf.train.Saver()
     if FLAGS.resnet_backbone:
       var_list_all = tf.trainable_variables()
+      print('var_list_all',var_list_all)
       var_list_warm_start = []
       for v in var_list_all:
         if 'dense' in v.name and not 'se_block' in v.name:
