@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 from fuel.streams import DataStream
 from fuel.schemes import IterationScheme, BatchSizeScheme, SequentialScheme
 import sys
-sys.path.append('./datasets')
+sys.path.append('../datasets')
 from cars196_dataset import Cars196Dataset
 from cub200_2011_dataset import Cub200_2011Dataset
 from online_products_dataset import OnlineProductsDataset
