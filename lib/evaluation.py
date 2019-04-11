@@ -60,7 +60,7 @@ def evaluate_recall(features, labels, neighbours):
     for i in range(0, np.shape(neighbours)[0]):
         recall_i = compute_recall_at_K(D, neighbours[i], labels, num)
         recalls.append(recall_i)
-    print 'done'
+    print('done')
     return recalls
 
   
@@ -197,9 +197,9 @@ def compute_recall_at_K(D, K, class_ids, num):
             num_correct = num_correct + 1
     recall = float(num_correct)/float(num)
 
-    print 'num_correct:', num_correct
-    print 'num:', num
-    print "K: %d, Recall: %.3f\n" % (K, recall)
+    print('num_correct:', num_correct)
+    print('num:', num)
+    print("K: %d, Recall: %.3f\n" % (K, recall))
     return recall
 
 
