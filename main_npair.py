@@ -47,7 +47,7 @@ def main(_):
         block_sizes=[3, 4, 6, 3],
         block_strides=[1, 2, 2, 2],
       )
-      embedding = resnet_model(x_raw, True)
+      embedding = resnet_model(x_raw, is_Training)
       print('embedding', embedding)
     else:
       with tf.variable_scope('Classifier'):
