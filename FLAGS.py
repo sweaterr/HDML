@@ -68,6 +68,6 @@ else:
 print("method: "+method)
 
 # Using GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = '2'
+# os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
