@@ -465,7 +465,7 @@ def Loss(embedding, label, _lossType="Softmax", loss_l2_reg=FLAGS.loss_l2_reg):
 
     if _lossType == "Softmax":
         print("Use Softmax")
-        W_fc2 = nn_Ops.weight_variable([1024, 10])
+        W_fc2 = nn_Ops.weight_variable([FLAGS.gap_dim, 10])
         b_fc2 = nn_Ops.bias_variable([10])
         y_conv = tf.matmul(embedding, W_fc2) + b_fc2
         _Loss = tf.reduce_mean(

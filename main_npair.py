@@ -1,5 +1,5 @@
 from datasets import data_provider
-from lib import GoogleNet_Model, Loss_ops, nn_Ops, Embedding_Visualization, HDML, evaluation
+from lib import GoogleNet_Model, Loss_ops, nn_Ops, Embedding_Visualization, HDML, evaluation, ResNet_Model
 import copy
 from tqdm import tqdm
 from tensorflow.contrib import layers
@@ -36,8 +36,28 @@ def main(_):
         lr = tf.placeholder(tf.float32)
 
     with tf.variable_scope('Classifier'):
-        google_net_model = GoogleNet_Model.GoogleNet_Model()
-        embedding = google_net_model.forward(x_raw)
+        if FLAGS.resnet_backbone:
+          # def __init__(self, resnet_size, bottleneck, num_filters,
+          #              kernel_size,
+          #              conv_stride, first_pool_size, first_pool_stride,
+          #              block_sizes, block_strides,
+          #              resnet_version=DEFAULT_VERSION, data_format=None,
+          #              dtype=DEFAULT_DTYPE):
+          resnet_model = ResNet_Model.Model(
+            resnet_size=50,
+            bottleneck=True,
+            num_filters=64,
+            kernel_size=7,
+            conv_stride=2,
+            first_pool_size=3,
+            first_pool_stride=2,
+            block_sizes=[3, 4, 6, 3],
+            block_strides=[1, 2, 2, 2],
+          )
+          embedding = resnet_model(x_raw, True)
+        else:
+          google_net_model = GoogleNet_Model.GoogleNet_Model()
+          embedding = google_net_model.forward(x_raw)
         if FLAGS.Apply_HDML:
             embedding_y_origin = embedding
 
@@ -47,7 +67,7 @@ def main(_):
 
         # FC layer 1
         embedding_z = nn_Ops.fc_block(
-            embedding, in_d=1024, out_d=FLAGS.embedding_size,
+            embedding, in_d=FLAGS.gap_dim, out_d=FLAGS.embedding_size,
             name='fc1', is_bn=False, is_relu=False, is_Training=is_Training)
 
         # Embedding Visualization
@@ -92,18 +112,18 @@ def main(_):
 
             # generator fc4
             embedding_y_concate = nn_Ops.fc_block(
-                embedding_y_concate, in_d=512, out_d=1024,
+                embedding_y_concate, in_d=512, out_d=FLAGS.gap_dim,
                 name='generator2', is_bn=False, is_relu=False, is_Training=is_Training
             )
 
-            embedding_yp, embedding_yq = HDML.npairSplit(embedding_y_concate)
+            embedding_yp, embedding_yq = HDML.npairSplit(embedding_y_concate, size=FLAGS.gap_dim)
 
         with tf.variable_scope('Classifier'):
             embedding_z_quta = nn_Ops.bn_block(
                 embedding_yq, normal=FLAGS.normalize, is_Training=is_Training, name='BN1', reuse=True)
 
             embedding_z_quta = nn_Ops.fc_block(
-                embedding_z_quta, in_d=1024, out_d=FLAGS.embedding_size,
+                embedding_z_quta, in_d=FLAGS.gap_dim, out_d=FLAGS.embedding_size,
                 name='fc1', is_bn=False, is_relu=False, reuse=True, is_Training=is_Training
             )
 
@@ -124,13 +144,13 @@ def main(_):
             J_m = (tf.exp(-FLAGS.beta/Jgen))*J_m
             J_metric = J_m + J_syn
 
-            cross_entropy, W_fc, b_fc = HDML.cross_entropy(embedding=embedding_y_origin, label=label)
+            cross_entropy, W_fc, b_fc = HDML.cross_entropy(embedding=embedding_y_origin, label=label, size=FLAGS.gap_dim)
 
             embedding_yq_anc = tf.slice(
-                input_=embedding_yq, begin=[0, 0], size=[int(FLAGS.batch_size / 2), 1024])
+                input_=embedding_yq, begin=[0, 0], size=[int(FLAGS.batch_size / 2), FLAGS.gap_dim])
             embedding_yq_negtile = tf.slice(
                 input_=embedding_yq, begin=[int(FLAGS.batch_size / 2), 0],
-                size=[int(np.square(FLAGS.batch_size / 2)), 1024]
+                size=[int(np.square(FLAGS.batch_size / 2)), FLAGS.gap_dim]
             )
             J_recon = (1 - FLAGS._lambda) * tf.reduce_sum(tf.square(embedding_yp - embedding_y_origin))
             J_soft = HDML.genSoftmax(
@@ -146,14 +166,39 @@ def main(_):
     else:
         train_step = nn_Ops.training(loss=J_m, lr=lr)
 
+    saver = tf.train.Saver()
+    if FLAGS.resnet_backbone:
+      var_list_all = tf.trainable_variables()
+      var_list_warm_start = []
+      for v in var_list_all:
+        if 'dense' in v.name and not 'se_block' in v.name:
+          continue
+        elif 'Classifier' in v.name:
+          continue
+        elif 'Generator' in v.name:
+          continue
+        elif 'Softmax_classifier' in v.name:
+          continue
+        else:
+          var_list_warm_start.append(v)
+      saver_to_warmstart = tf.train.Saver(var_list_warm_start)
+    else:
+      saver_to_warmstart = None
     # initialise the session
     with tf.Session(config=config) as sess:
         # Initial all the variables with the sess
         sess.run(tf.global_variables_initializer())
-        saver = tf.train.Saver()
+
         
         # learning rate
         _lr = FLAGS.init_learning_rate
+
+        if saver_to_warmstart:
+          if tf.gfile.IsDirectory(FLAGS.resnet_backbone):
+            checkpoint_path = tf.train.latest_checkpoint(FLAGS.resnet_backbone)
+          else:
+            checkpoint_path = FLAGS.resnet_backbone
+          saver_to_warmstart.restore(sess, checkpoint_path)
         
         # Restore a checkpoint
         if FLAGS.load_formalVal:
