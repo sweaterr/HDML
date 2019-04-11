@@ -12,7 +12,7 @@ embedding = google_net_model.forward(x)
 
 
 class GoogleNet_Model(object):
-    def __init__(self, model_dir='/home/zwz/Desktop/CZD/cvpr_rebuttal/pretrain_model/GoogLeNet_Pretrain/'):
+    def __init__(self, model_dir='./'):
         self.model_dir = model_dir
         self.var_dict = self.variables_dict()
         self.img = tf.placeholder(tf.float32, [None, 227, 227, 3])
