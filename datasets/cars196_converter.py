@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     fuel_root_path = "./datasets/data"
     fuel_data_path = os.path.join(fuel_root_path, dataset_name)
-    image_filepath = os.path.join(fuel_data_path, archive_basename + ".tar.gz")
+    image_filepath = os.path.join(fuel_data_path, archive_basename + ".tgz")
     label_filepath = os.path.join(fuel_data_path, "cars_annos.mat")
 
     # Extract car_ims.tgz if car_ims directory does not exist
