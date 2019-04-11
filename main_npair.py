@@ -198,6 +198,7 @@ def main(_):
             checkpoint_path = tf.train.latest_checkpoint(FLAGS.resnet_backbone)
           else:
             checkpoint_path = FLAGS.resnet_backbone
+          print('checkpoint_path',checkpoint_path)
           saver_to_warmstart.restore(sess, checkpoint_path)
         
         # Restore a checkpoint
