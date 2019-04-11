@@ -27,7 +27,7 @@ tf.flags.DEFINE_float('embedding_size', 128,
                       'The size of embedding, we recommend 128 for cars196')
 tf.flags.DEFINE_float('loss_l2_reg', 3e-3,
                       'The factor of embedding l2_loss, we recommend 3e-3 for cars196')
-tf.flags.DEFINE_integer('init_batch_per_epoch', 500, 'init_batch_per_epoch, 500 for cars and cub)
+tf.flags.DEFINE_integer('init_batch_per_epoch', 500, 'init_batch_per_epoch, 500 for cars and cub')
 tf.flags.DEFINE_integer('batch_per_epoch', 64,
                         'The number of batches per epoch, in most situation, '
                         'we recommend 64 for cars196')
