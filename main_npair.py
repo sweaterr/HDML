@@ -249,6 +249,8 @@ def main(_):
                     J_soft_loss.update(var=J_soft_var)
                     J_gen_loss.update(var=J_gen_var)
                     cross_entropy_loss.update(cross_en_var)
+                    print('J_m_loss.read()',J_m_loss.read())
+                    print('J_gen_loss.read()', J_gen_loss.read())
                 step += 1
                 # print('learning rate %f' % _lr)
 
