@@ -221,81 +221,81 @@ def main(_):
         step = 0
 
         bp_epoch = FLAGS.init_batch_per_epoch
-        with tqdm(total=FLAGS.max_steps) as pbar:
-            for batch in copy.copy(epoch_iterator):
-                # get images and labels from batch
-                x_batch_data, Label_raw = nn_Ops.batch_data(batch)
-                pbar.update(1)
-                if not FLAGS.Apply_HDML:
-                    train, J_m_var, wd_Loss_var = sess.run([train_step, J_m, wdLoss],
-                                                           feed_dict={x_raw: x_batch_data, label_raw: Label_raw,
-                                                                      is_Training: True, lr: _lr})
-                    J_m_loss.update(var=J_m_var)
-                    wd_Loss.update(var=wd_Loss_var)
+        # with tqdm(total=FLAGS.max_steps) as pbar:
+        for batch in copy.copy(epoch_iterator):
+            # get images and labels from batch
+            x_batch_data, Label_raw = nn_Ops.batch_data(batch)
+            pbar.update(1)
+            if not FLAGS.Apply_HDML:
+                train, J_m_var, wd_Loss_var = sess.run([train_step, J_m, wdLoss],
+                                                       feed_dict={x_raw: x_batch_data, label_raw: Label_raw,
+                                                                  is_Training: True, lr: _lr})
+                J_m_loss.update(var=J_m_var)
+                wd_Loss.update(var=wd_Loss_var)
 
-                else:
-                    c_train, g_train, s_train, wd_Loss_var, J_metric_var, J_m_var, \
-                        J_syn_var, J_recon_var,  J_soft_var, J_gen_var, cross_en_var = sess.run(
-                            [c_train_step, g_train_step, s_train_step, wdLoss,
-                             J_metric, J_m, J_syn, J_recon, J_soft, J_gen, cross_entropy],
-                            feed_dict={x_raw: x_batch_data,
-                                       label_raw: Label_raw,
-                                       is_Training: True, lr: _lr, Javg: J_m_loss.read(), Jgen: J_gen_loss.read()})
-                    wd_Loss.update(var=wd_Loss_var)
-                    J_metric_loss.update(var=J_metric_var)
-                    J_m_loss.update(var=J_m_var)
-                    J_syn_loss.update(var=J_syn_var)
-                    J_recon_loss.update(var=J_recon_var)
-                    J_soft_loss.update(var=J_soft_var)
-                    J_gen_loss.update(var=J_gen_var)
-                    cross_entropy_loss.update(cross_en_var)
-                    print('J_m_loss.read()',J_m_loss.read())
-                    print('J_gen_loss.read()', J_gen_loss.read())
-                step += 1
-                # print('learning rate %f' % _lr)
+            else:
+                c_train, g_train, s_train, wd_Loss_var, J_metric_var, J_m_var, \
+                    J_syn_var, J_recon_var,  J_soft_var, J_gen_var, cross_en_var = sess.run(
+                        [c_train_step, g_train_step, s_train_step, wdLoss,
+                         J_metric, J_m, J_syn, J_recon, J_soft, J_gen, cross_entropy],
+                        feed_dict={x_raw: x_batch_data,
+                                   label_raw: Label_raw,
+                                   is_Training: True, lr: _lr, Javg: J_m_loss.read(), Jgen: J_gen_loss.read()})
+                wd_Loss.update(var=wd_Loss_var)
+                J_metric_loss.update(var=J_metric_var)
+                J_m_loss.update(var=J_m_var)
+                J_syn_loss.update(var=J_syn_var)
+                J_recon_loss.update(var=J_recon_var)
+                J_soft_loss.update(var=J_soft_var)
+                J_gen_loss.update(var=J_gen_var)
+                cross_entropy_loss.update(cross_en_var)
+                print('J_gen_var',J_gen_var)
+                print('J_gen_loss.read()', J_gen_loss.read())
+            step += 1
+            # print('learning rate %f' % _lr)
 
-                # evaluation
-                if step % bp_epoch == 0:
-                    print('only eval eval')
-                    # nmi_tr, f1_tr, recalls_tr = evaluation.Evaluation(
-                    #     stream_train_eval, image_mean, sess, x_raw, label_raw, is_Training, embedding_z, 98, neighbours)
-                    nmi_te, f1_te, recalls_te = evaluation.Evaluation(
-                        stream_test, image_mean, sess, x_raw, label_raw, is_Training, embedding_z, 98, neighbours)
+            # evaluation
+            if step % bp_epoch == 0:
+                print('only eval eval')
+                # nmi_tr, f1_tr, recalls_tr = evaluation.Evaluation(
+                #     stream_train_eval, image_mean, sess, x_raw, label_raw, is_Training, embedding_z, 98, neighbours)
+                nmi_te, f1_te, recalls_te = evaluation.Evaluation(
+                    stream_test, image_mean, sess, x_raw, label_raw, is_Training, embedding_z, 98, neighbours)
 
-                    # Summary
-                    eval_summary = tf.Summary()
-                    # eval_summary.value.add(tag='train nmi', simple_value=nmi_tr)
-                    # eval_summary.value.add(tag='train f1', simple_value=f1_tr)
-                    # for i in range(0, np.shape(neighbours)[0]):
-                    #     eval_summary.value.add(tag='Recall@%d train' % neighbours[i], simple_value=recalls_tr[i])
-                    eval_summary.value.add(tag='test nmi', simple_value=nmi_te)
-                    eval_summary.value.add(tag='test f1', simple_value=f1_te)
-                    for i in range(0, np.shape(neighbours)[0]):
-                        eval_summary.value.add(tag='Recall@%d test' % neighbours[i], simple_value=recalls_te[i])
-                    J_m_loss.write_to_tfboard(eval_summary)
-                    wd_Loss.write_to_tfboard(eval_summary)
-                    eval_summary.value.add(tag='learning_rate', simple_value=_lr)
-                    if FLAGS.Apply_HDML:
-                        J_syn_loss.write_to_tfboard(eval_summary)
-                        J_metric_loss.write_to_tfboard(eval_summary)
-                        J_soft_loss.write_to_tfboard(eval_summary)
-                        J_recon_loss.write_to_tfboard(eval_summary)
-                        J_gen_loss.write_to_tfboard(eval_summary)
-                        cross_entropy_loss.write_to_tfboard(eval_summary)
-                    summary_writer.add_summary(eval_summary, step)
-                    print('Summary written')
-                    if nmi_te > max_nmi:
-                        max_nmi = nmi_te
-                        print("Saved")
-                        saver.save(sess, os.path.join(LOGDIR, "model.ckpt"))
-                    summary_writer.flush()
-                    if step in [5632, 6848]:
-                        _lr = _lr * 0.5
+                # Summary
+                eval_summary = tf.Summary()
+                # eval_summary.value.add(tag='train nmi', simple_value=nmi_tr)
+                # eval_summary.value.add(tag='train f1', simple_value=f1_tr)
+                # for i in range(0, np.shape(neighbours)[0]):
+                #     eval_summary.value.add(tag='Recall@%d train' % neighbours[i], simple_value=recalls_tr[i])
+                eval_summary.value.add(tag='test nmi', simple_value=nmi_te)
+                eval_summary.value.add(tag='test f1', simple_value=f1_te)
+                for i in range(0, np.shape(neighbours)[0]):
+                    eval_summary.value.add(tag='Recall@%d test' % neighbours[i], simple_value=recalls_te[i])
+                J_m_loss.write_to_tfboard(eval_summary)
+                wd_Loss.write_to_tfboard(eval_summary)
+                eval_summary.value.add(tag='learning_rate', simple_value=_lr)
+                if FLAGS.Apply_HDML:
+                    J_syn_loss.write_to_tfboard(eval_summary)
+                    J_metric_loss.write_to_tfboard(eval_summary)
+                    J_soft_loss.write_to_tfboard(eval_summary)
+                    J_recon_loss.write_to_tfboard(eval_summary)
+                    J_gen_loss.write_to_tfboard(eval_summary)
+                    cross_entropy_loss.write_to_tfboard(eval_summary)
+                summary_writer.add_summary(eval_summary, step)
+                print('Summary written')
+                if nmi_te > max_nmi:
+                    max_nmi = nmi_te
+                    print("Saved")
+                    saver.save(sess, os.path.join(LOGDIR, "model.ckpt"))
+                summary_writer.flush()
+                if step in [5632, 6848]:
+                    _lr = _lr * 0.5
 
-                    if step >= 5000:
-                        bp_epoch = FLAGS.batch_per_epoch
-                    if step >= FLAGS.max_steps:
-                        os._exit()
+                if step >= 5000:
+                    bp_epoch = FLAGS.batch_per_epoch
+                if step >= FLAGS.max_steps:
+                    os._exit()
 
 
 
