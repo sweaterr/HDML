@@ -7,6 +7,7 @@ import time
 FLAGS = tf.flags.FLAGS
 
 # Flags for the Basic Model
+tf.flags.DEFINE_string('f', '', 'Training on which dataset, cars196, cub200, products')
 tf.flags.DEFINE_string('resnet_backbone', None, 'use Resnet')
 tf.flags.DEFINE_integer('gap_dim', 1024, '')
 
