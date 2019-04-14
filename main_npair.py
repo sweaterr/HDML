@@ -225,6 +225,8 @@ def main(_):
           for batch in copy.copy(epoch_iterator):
               # get images and labels from batch
               x_batch_data, Label_raw = nn_Ops.batch_data(batch)
+              print('x_batch_data',x_batch_data)
+              break
               pbar.update(1)
               if not FLAGS.Apply_HDML:
                   train, J_m_var, wd_Loss_var = sess.run([train_step, J_m, wdLoss],
