@@ -220,13 +220,14 @@ def main(_):
         max_nmi = 0
         step = 0
 
-        bp_epoch = FLAGS.init_batch_per_epoch
+        # bp_epoch = FLAGS.init_batch_per_epoch
+        bp_epoch = 64
         with tqdm(total=FLAGS.max_steps) as pbar:
           for batch in copy.copy(epoch_iterator):
               # get images and labels from batch
               x_batch_data, Label_raw = nn_Ops.batch_data(batch)
-              print('x_batch_data',x_batch_data)
-              break
+              # print('x_batch_data',x_batch_data)
+              # break
               pbar.update(1)
               if not FLAGS.Apply_HDML:
                   train, J_m_var, wd_Loss_var = sess.run([train_step, J_m, wdLoss],
