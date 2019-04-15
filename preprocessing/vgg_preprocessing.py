@@ -331,7 +331,7 @@ def preprocess_for_eval(image, output_height, output_width, resize_side):
     A preprocessed image.
   """
   image = tf.image.decode_jpeg(image, channels=3, dct_method='INTEGER_ACCURATE')
-  image = _aspect_preserving_resize(image, resize_side)
+  image = _aspect_preserving_resize(image, 256)
   image = _central_crop([image], output_height, output_width)[0]
   image.set_shape([output_height, output_width, 3])
   image = tf.to_float(image)
