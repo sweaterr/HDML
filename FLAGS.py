@@ -12,7 +12,7 @@ tf.flags.DEFINE_string('resnet_backbone', None, 'use Resnet')
 tf.flags.DEFINE_integer('gap_dim', 2048, '')
 
 tf.flags.DEFINE_string('dataSet', 'cars196', 'Training on which dataset, cars196, cub200, products')
-tf.flags.DEFINE_string('data_dir', 'cars196/tfrecord', '')
+tf.flags.DEFINE_string('data_dir', '/home1/irteam/user/jklee/food-fighters/models/tensorflow/cars196/tfrecord', '')
 # We use NCA Loss in this program
 tf.flags.DEFINE_string('LossType', 'NpairLoss', 'The type of Loss to be used in training')
 tf.flags.DEFINE_string('log_save_path', './tensorboard_log/', 'Directory to save tenorboard log files')
