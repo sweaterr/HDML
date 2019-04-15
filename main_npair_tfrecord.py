@@ -3,6 +3,7 @@ from lib import GoogleNet_Model, Loss_ops, nn_Ops, Embedding_Visualization, HDML
 import copy
 from tqdm import tqdm
 from tensorflow.contrib import layers
+from functions import input_fns, data_config, model_fns
 from FLAGS import *
 import sys
 sys.path.append('./datasets')
@@ -28,12 +29,40 @@ def main(_):
         return 0
 
     # placeholders
-    x_raw = tf.placeholder(tf.float32, shape=[None, FLAGS.default_image_size, FLAGS.default_image_size, 3])
-    label_raw = tf.placeholder(tf.int32, shape=[None, 1])
+    # x_raw = tf.placeholder(tf.float32, shape=[None, FLAGS.default_image_size, FLAGS.default_image_size, 3])
+    # label_raw = tf.placeholder(tf.int32, shape=[None, 1])
     with tf.name_scope('istraining'):
         is_Training = tf.placeholder(tf.bool)
     with tf.name_scope('learning_rate'):
         lr = tf.placeholder(tf.float32)
+
+    def input_fn_train(num_train_epochs):
+      return input_fns.input_fn_npair_train(
+        is_training=True,
+        data_dir=FLAGS.data_dir,
+        use_random_crop=True,
+        train_epochs=num_train_epochs,
+        batch_size=FLAGS.batch_size,
+        dtype=tf.float32,
+        dataset_name=FLAGS.dataSet,
+        preprocessing_type='imagenet'
+      )
+
+    input_fn = input_fn_train
+
+    dataset = input_fn(int(FLAGS.max_steps // 64))
+    iterator = dataset.make_initializable_iterator()
+
+    features, labels = iterator.get_next()
+
+    features = tf.split(features, num_or_size_splits=2, axis=0)
+    labels_split = tf.split(labels, num_or_size_splits=2, axis=0)
+
+    features_anchor = features[0][0]
+    features_positive = features[1][0]
+    labels_split = labels_split[0][0]
+    x_raw = tf.concat([features_anchor, features_positive], axis=0)
+    label_raw = tf.concat([labels_split, labels_split], axis=0)
 
     if FLAGS.resnet_backbone:
       resnet_model = ResNet_Model.Model(
@@ -185,6 +214,9 @@ def main(_):
     else:
       saver_to_warmstart = None
     # initialise the session
+
+
+
     with tf.Session(config=config) as sess:
         # Initial all the variables with the sess
         sess.run(tf.global_variables_initializer())
