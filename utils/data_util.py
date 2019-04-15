@@ -310,7 +310,7 @@ def process_record_dataset_ir(dataset, is_training, batch_size, parse_record_fn,
   def _choose_random_labels_from_pairwises(x):
     assert batch_size % num_instances == 0
     x = tf.transpose(x)
-    x = tf.random_shuffle(x, seed=0)
+    # x = tf.random_shuffle(x, seed=0)
 
     return tf.transpose(x[:int(batch_size / num_instances)])
 
