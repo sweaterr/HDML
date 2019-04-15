@@ -299,7 +299,7 @@ def input_fn_npair_train(is_training,
       tf.data.TFRecordDataset, cycle_length=1))
     # shuffling records by class. A larger shuffle buffer's size results in better randomness,
     # but smaller size reduce startup time and use less memory.
-    dataset = dataset.shuffle(buffer_size=100)
+    # dataset = dataset.shuffle(buffer_size=100)
     dataset = dataset.repeat()
 
     all_choices_ds.append(dataset)
