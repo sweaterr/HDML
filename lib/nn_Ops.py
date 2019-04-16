@@ -15,8 +15,9 @@ def weight_variable(shape, name, wd=True):
     :param wd: Whether or not this variable should be weight decade
     :return: A weight-variable
     """
-    initializer = tf.glorot_uniform_initializer(seed=0)#tf.contrib.layers.xavier_initializer()  # tf.truncated_normal_initializer(stddev=0.1)
+    # initializer = tf.glorot_uniform_initializer(seed=0)#tf.contrib.layers.xavier_initializer()  # tf.truncated_normal_initializer(stddev=0.1)
     # initializer =
+    initializer = tf.ones_initializer()
     if wd:
         weight = tf.get_variable(name='weight'+name, shape=shape,
                                  initializer=initializer,
